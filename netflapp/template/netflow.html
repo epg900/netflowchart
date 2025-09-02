@@ -1,0 +1,68 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<script src="{% static 'Chart.js' %}"></script>
+<body>
+<canvas id="myChart" style="width:100%;max-width:80%"></canvas>
+<script>
+let xValues = {{xval | safe}};
+let colorlst={{colorlst | safe}};
+let chart1 = new Chart("myChart", {
+  type: "line",
+  data: {
+    labels: {{xval | safe}},
+    datasets: [
+{% for k, v in allip.items %}
+     {
+      label: "{{k}}",
+      borderColor: colorlst[{{forloop.counter0}}],
+      data: {{v | safe}}
+       },
+{% endfor %}
+    ]
+  },
+  options: {
+    title: {display: true,
+    text : "Packets/Second"},       
+  }
+});
+
+setInterval(() => {
+fetch('/json{{request.path}}')
+	.then(response => {
+		return response.json(); 
+	})
+	.then(data => {
+		dataset=[];
+		var ix = 0;				
+		for(item in data.allip){
+			var arr1 = {
+				label: item,
+				borderColor: data.colorlst[ix],
+				data: data.allip[item] };
+			dataset.push(arr1);
+			ix++;				
+		}
+		chart1.destroy();
+
+		chart1 = new Chart("myChart", {
+  		type: "line",
+  		data: {
+    		labels: data.xval,
+    		datasets: dataset, 
+  		},
+  		options: {
+    		title: {display: true,
+   		text : "Packets/Second"},       
+  		}
+		});		
+	})
+	.catch(error => {
+		console.error('error:',error);
+	});
+},10000);
+
+</script>
+</body>
+</html>
+

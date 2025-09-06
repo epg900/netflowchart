@@ -28,39 +28,29 @@ let chart1 = new Chart("myChart", {
 });
 
 setInterval(() => {
-fetch('/json{{request.path}}')
+fetch('/update')
 	.then(response => {
 		return response.json(); 
 	})
 	.then(data => {
 		dataset=[];
-		var ix = 0;				
-		for(item in data.allip){
-			var arr1 = {
-				label: item,
-				borderColor: data.colorlst[ix],
-				data: data.allip[item] };
-			dataset.push(arr1);
-			ix++;				
+		var ix = 0;	
+		if(chart1.data.labels.length >= data.tm) {
+			chart1.data.labels.splice(0,1);
+			chart1.data.datasets.forEach((ds) => {
+			ds.data.splice(0,1);
+		});
 		}
-		chart1.destroy();
-
-		chart1 = new Chart("myChart", {
-  		type: "line",
-  		data: {
-    		labels: data.xval,
-    		datasets: dataset, 
-  		},
-  		options: {
-    		title: {display: true,
-   		text : "Packets/Second"},       
-  		}
-		});		
+		chart1.data.labels.push(data.xval);			
+		chart1.data.datasets.forEach((ds) => {
+			ds.data.push(data.allip[ds.label]);
+		});
+		chart1.update();				
 	})
 	.catch(error => {
 		console.error('error:',error);
 	});
-},10000);
+},{{per}}*1000);
 
 </script>
 </body>

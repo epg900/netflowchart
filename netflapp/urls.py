@@ -19,12 +19,9 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('json/',views.req),
-    path('json/<str:host>/',views.req2),
-    path('json/<str:host>/<int:loop>/',views.req2),
-    path('json/<str:host>/<int:loop>/<int:sleep>',views.req2),
+    path('update/',views.req2),
     path('<str:host>/',views.req),
-    path('<str:host>/<int:loop>/',views.req),
-    path('<str:host>/<int:loop>/<int:sleep>',views.req),
+    path('<str:host>/<int:tm>/',views.req),
+    path('<str:host>/<int:tm>/<int:per>',views.req),
     path('',views.index),
 ]

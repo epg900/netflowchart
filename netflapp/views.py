@@ -57,7 +57,7 @@ def req2(request):
     for ip in allip:
         if ip not in ipcol:
             ipcol[ip]={}
-            ipcol[ip]['data']=[allip[ip]]
+            ipcol[ip]['data']=allip[ip]
             ipcol[ip]['color']=f'#{random.randint(0,255):02x}{random.randint(0,255):02x}{random.randint(0,255):02x}'
         else:
             ipcol[ip]['data']=allip[ip]

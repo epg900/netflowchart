@@ -12,11 +12,11 @@ let chart1 = new Chart("myChart", {
   data: {
     labels: {{xval | safe}},
     datasets: [
-{% for k, v in ipcol.items %}
+{% for k, v in allip.items %}
      {
       label: "{{k}}",
-      borderColor: "{{v.color | safe}}",
-      data: {{v.data | safe}}
+      borderColor: colorlst[{{forloop.counter0}}],
+      data: {{v | safe}}
        },
 {% endfor %}
     ]
@@ -33,30 +33,17 @@ fetch('/update')
 		return response.json(); 
 	})
 	.then(data => {
-		newdataset=[];
-		if(chart1.data.labels.length >= {{tm}}) {
+		dataset=[];
+		var ix = 0;	
+		if(chart1.data.labels.length >= data.tm) {
 			chart1.data.labels.splice(0,1);
 			chart1.data.datasets.forEach((ds) => {
 			ds.data.splice(0,1);
 		});
 		}
-		chart1.data.labels.push(data.xval);
-
-		for(ip in data.ipcol){
-			ix=0;
-			chart1.data.datasets.forEach((ds) => {			
-				if(ds.label == ip) {
-					ix=1;
-				} 
-			});
-			if(ix==0){
-				chart1.data.datasets.push({ label: ip,
-      					borderColor: data.ipcol[ip]['color'],
-      					data: data.ipcol[ip]['data'] });
-			}
-		}			
-		chart1.data.datasets.forEach((ds) => {			
-			ds.data.push(data.ipcol[ds.label]['data']);
+		chart1.data.labels.push(data.xval);			
+		chart1.data.datasets.forEach((ds) => {
+			ds.data.push(data.allip[ds.label]);
 		});
 		chart1.update();				
 	})

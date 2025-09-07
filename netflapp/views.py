@@ -11,6 +11,8 @@ from datetime import datetime
 conf={'device_type':'cisco_ios', 'host':settings.HOST, 'username':settings.USER, 'password':settings.PASSWD}
 net_obj=ConnectHandler(**conf)
 
+ipcol = {}
+
 def getnetfl2(net_obj,tf):
     sumval=0
     xval=[]
@@ -38,18 +40,28 @@ def getnetfl2(net_obj,tf):
 
  
 def index(request):
-    allip, xval, colorlst = getnetfl2(net_obj,True)
-    return render(request,'netflow.html',context={'allip' : allip, 'xval' : xval, 'colorlst' : colorlst, 'tm' : 20, 'per' : 6 })
+    return HttpResponse('<H2>Use This Url Template:</H2><BR/><H3>[server_IP]/[router_IP]/[Number_of_X_Point]/[Sleep_Time_between_Point]</H3>')
 
 def req(request,host,tm=20,per=6):
     conf={'device_type':'cisco_ios', 'host':host, 'username':settings.USER, 'password':settings.PASSWD}
     net_obj=ConnectHandler(**conf)
-    allip, xval, colorlst = getnetfl2(net_obj,True)       
-    return render(request,'netflow.html',context={'allip' : allip, 'xval' : xval, 'colorlst' : colorlst, 'tm' : tm, 'per' : per })
+    allip, xval, colorlst = getnetfl2(net_obj,True)
+    for ip in allip:
+        ipcol[ip]={}
+        ipcol[ip]['data']=allip[ip]
+        ipcol[ip]['color']=f'#{random.randint(0,255):02x}{random.randint(0,255):02x}{random.randint(0,255):02x}'
+    return render(request,'netflow.html',context={'allip' : allip, 'xval' : xval, 'colorlst' : colorlst, 'tm' : tm, 'per' : per, 'ipcol' : ipcol })
 
 def req2(request):
     allip, xval, colorlst = getnetfl2(net_obj,False)
-    return JsonResponse({'allip' : allip, 'xval' : xval, 'colorlst' : colorlst })
+    for ip in allip:
+        if ip not in ipcol:
+            ipcol[ip]={}
+            ipcol[ip]['data']=[allip[ip]]
+            ipcol[ip]['color']=f'#{random.randint(0,255):02x}{random.randint(0,255):02x}{random.randint(0,255):02x}'
+        else:
+            ipcol[ip]['data']=allip[ip]
+    return JsonResponse({'allip' : allip, 'xval' : xval, 'colorlst' : colorlst, 'ipcol' : ipcol })
 
 
        

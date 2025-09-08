@@ -34,9 +34,9 @@ def getnetfl2(net_obj,tf):
             allip[arr].append(sumval)
         else:
             allip[arr] = sumval
-        colorlst.append(f'#{random.randint(0,255):02x}{random.randint(0,255):02x}{random.randint(0,255):02x}')
+        
     xval.append(datetime.now().strftime('%H:%M:%S'))
-    return allip, xval, colorlst
+    return allip, xval
 
  
 def index(request):
@@ -45,15 +45,15 @@ def index(request):
 def req(request,host,tm=20,per=6):
     conf={'device_type':'cisco_ios', 'host':host, 'username':settings.USER, 'password':settings.PASSWD}
     net_obj=ConnectHandler(**conf)
-    allip, xval, colorlst = getnetfl2(net_obj,True)
+    allip, xval = getnetfl2(net_obj,True)
     for ip in allip:
         ipcol[ip]={}
         ipcol[ip]['data']=allip[ip]
         ipcol[ip]['color']=f'#{random.randint(0,255):02x}{random.randint(0,255):02x}{random.randint(0,255):02x}'
-    return render(request,'netflow.html',context={'allip' : allip, 'xval' : xval, 'colorlst' : colorlst, 'tm' : tm, 'per' : per, 'ipcol' : ipcol })
+    return render(request,'netflow.html',context={'xval' : xval,'tm' : tm, 'per' : per, 'ipcol' : ipcol })
 
 def req2(request):
-    allip, xval, colorlst = getnetfl2(net_obj,False)
+    allip, xval = getnetfl2(net_obj,False)
     for ip in allip:
         if ip not in ipcol:
             ipcol[ip]={}
@@ -61,7 +61,7 @@ def req2(request):
             ipcol[ip]['color']=f'#{random.randint(0,255):02x}{random.randint(0,255):02x}{random.randint(0,255):02x}'
         else:
             ipcol[ip]['data']=allip[ip]
-    return JsonResponse({'allip' : allip, 'xval' : xval, 'colorlst' : colorlst, 'ipcol' : ipcol })
+    return JsonResponse({'xval' : xval, 'ipcol' : ipcol })
 
 
        

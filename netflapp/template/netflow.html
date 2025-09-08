@@ -14,7 +14,7 @@ let chart1 = new Chart("myChart", {
      {
       label: "{{k}}",
       borderColor: "{{v.color | safe}}",
-      data: {{v.data | safe}}
+      data: [{{v.data | safe}}]
        },
 {% endfor %}
     ]
@@ -31,14 +31,14 @@ fetch('/update')
 		return response.json(); 
 	})
 	.then(data => {
-		
-		if(chart1.data.labels.length >= {{tm}}) {
-			chart1.data.labels.splice(0,1);}
 		chart1.data.datasets.forEach((ds) => {
 			if(ds.data.length >= {{tm}}) {
-			ds.data.splice(0,1);}
+				ds.data.splice(0,1);
+			}
 		});
-		
+		if(chart1.data.labels.length >= {{tm}}) {
+			chart1.data.labels.splice(0,1);
+		}
 		chart1.data.labels.push(data.xval);
 
 		for(ip in data.ipcol){
@@ -48,10 +48,10 @@ fetch('/update')
 					ix=1;
 				} 
 			});
-			if(ix==0){
+			if(ix==0){				
 				chart1.data.datasets.push({ label: ip,
       					borderColor: data.ipcol[ip]['color'],
-      					data: data.ipcol[ip]['data'] });
+      					data: [data.ipcol[ip]['data']] });
 			}
 		}			
 		chart1.data.datasets.forEach((ds) => {			

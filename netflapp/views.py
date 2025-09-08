@@ -28,7 +28,8 @@ def getnetfl2(net_obj,tf):
     for arr in gbsrcip:
         sumval=0
         for i in gbsrcip[arr]:
-            sumval+=int(i['pkts'])
+            if int(i['pkts']) > sumval:
+                sumval=int(i['pkts'])
         if tf:
             allip[arr]=[]
             allip[arr].append(sumval)

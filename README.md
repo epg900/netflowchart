@@ -4,7 +4,7 @@ Please set USER,PASSWD and HOST in settings file to read and load netflow data f
 
 How to Use:
 ----------
-you can use [server_IP]/[router_IP]/[Number_of_X_Point]/[Sleep_Time_between_Point] to read netflow data from router!
+you can use `[server_IP]/[router_IP]/[Number_of_X_Point]/[Sleep_Time_between_Point]` to read netflow data from router!
 
 Router config:
 ----------

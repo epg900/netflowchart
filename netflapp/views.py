@@ -8,17 +8,14 @@ from operator import itemgetter
 import time
 from datetime import datetime
 
-conf={'device_type':'cisco_ios', 'host':settings.HOST, 'username':settings.USER, 'password':settings.PASSWD}
-net_obj=ConnectHandler(**conf)
+net_obj=None
 
 ipcol = {}
 
-def getnetfl2(net_obj,tf):
+def getnetfl2(out2,tf):
     sumval=0
     xval=[]
-    allip={}    
-    out2={}
-    out2=net_obj.send_command("show ip cache flow",use_textfsm=True,textfsm_template="netflow.textfsm")
+    allip={}   
     sdata = sorted(out2,key = itemgetter('srcip'))
     gbsrcip = {}
     for k,g in groupby(sdata,key=itemgetter('srcip')):
@@ -40,8 +37,11 @@ def index(request):
 
 def req(request,host,tm=20,per=6):
     conf={'device_type':'cisco_ios', 'host':host, 'username':settings.USER, 'password':settings.PASSWD}
+    global net_obj
     net_obj=ConnectHandler(**conf)
-    allip, xval = getnetfl2(net_obj,True)
+    out2={}
+    out2=net_obj.send_command("show ip cache flow",use_textfsm=True,textfsm_template="netflow.textfsm")
+    allip, xval = getnetfl2(out2,True)
     for ip in allip:
         ipcol[ip]={}
         ipcol[ip]['data']=allip[ip]
@@ -49,7 +49,10 @@ def req(request,host,tm=20,per=6):
     return render(request,'netflow.html',context={'xval' : xval,'tm' : tm, 'per' : per, 'ipcol' : ipcol })
 
 def req2(request):
-    allip, xval = getnetfl2(net_obj,False)
+    global net_obj
+    out2={}
+    out2=net_obj.send_command("show ip cache flow",use_textfsm=True,textfsm_template="netflow.textfsm")
+    allip, xval = getnetfl2(out2,False)
     for ip in allip:
         if ip not in ipcol:
             ipcol[ip]={}

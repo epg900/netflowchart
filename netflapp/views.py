@@ -17,7 +17,6 @@ def getnetfl2(net_obj,tf):
     sumval=0
     xval=[]
     allip={}    
-    colorlst=[]
     out2={}
     out2=net_obj.send_command("show ip cache flow",use_textfsm=True,textfsm_template="netflow.textfsm")
     sdata = sorted(out2,key = itemgetter('srcip'))
@@ -30,11 +29,7 @@ def getnetfl2(net_obj,tf):
         for i in gbsrcip[arr]:
             if int(i['pkts']) > sumval:
                 sumval=int(i['pkts'])
-        if tf:
-            allip[arr]=[]
-            allip[arr].append(sumval)
-        else:
-            allip[arr] = sumval
+        allip[arr] = sumval
         
     xval.append(datetime.now().strftime('%H:%M:%S'))
     return allip, xval

@@ -5,13 +5,12 @@
 <body>
 <canvas id="myChart" style="width:100%;max-width:80%"></canvas>
 <script>
-let ipx="{{request.session.ipx}}";
 let chart1 = new Chart("myChart", {
   type: "line",
   data: {
     labels: {{xval | safe}},
     datasets: [
-{% for k, v in ipcol.ipx.items %}
+{% for k, v in ipcol.items %}
      {
       label: "{{k}}",
       borderColor: "{{v.color | safe}}",
@@ -32,7 +31,6 @@ fetch('/update')
 		return response.json(); 
 	})
 	.then(data => {
-		ipx="{{request.session.ipx}}";
 		chart1.data.datasets.forEach((ds) => {
 			if(ds.data.length >= {{tm}}) {
 				ds.data.splice(0,1);
@@ -43,7 +41,7 @@ fetch('/update')
 		}
 		chart1.data.labels.push(data.xval);
 
-		for(ip in data.ipcol["{{request.session.ipx}}"]){
+		for(ip in data.ipcol){
 			ix=0;
 			chart1.data.datasets.forEach((ds) => {			
 				if(ds.label == ip) {
@@ -52,12 +50,12 @@ fetch('/update')
 			});
 			if(ix==0){				
 				chart1.data.datasets.push({ label: ip,
-      					borderColor: data.ipcol["{{request.session.ipx}}"][ip]['color'],
-      					data: [data.ipcol["{{request.session.ipx}}"][ip]['data']] });
+      					borderColor: data.ipcol[ip]['color'],
+      					data: [data.ipcol[ip]['data']] });
 			}
 		}			
 		chart1.data.datasets.forEach((ds) => {			
-			ds.data.push(data.ipcol["{{request.session.ipx}}"][ds.label]['data']);
+			ds.data.push(data.ipcol[ds.label]['data']);
 		});
 		chart1.update();				
 	})

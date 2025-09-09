@@ -8,13 +8,18 @@ from operator import itemgetter
 import time
 from datetime import datetime
 
-net_obj = {}
+conf={'device_type':'cisco_ios', 'host':settings.HOST, 'username':settings.USER, 'password':settings.PASSWD}
+net_obj=ConnectHandler(**conf)
+
 ipcol = {}
 
-def getnetfl2(out2,tf):
+def getnetfl2(net_obj,tf):
     sumval=0
     xval=[]
     allip={}    
+    colorlst=[]
+    out2={}
+    out2=net_obj.send_command("show ip cache flow",use_textfsm=True,textfsm_template="netflow.textfsm")
     sdata = sorted(out2,key = itemgetter('srcip'))
     gbsrcip = {}
     for k,g in groupby(sdata,key=itemgetter('srcip')):
@@ -23,9 +28,12 @@ def getnetfl2(out2,tf):
     for arr in gbsrcip:
         sumval=0
         for i in gbsrcip[arr]:
-            if int(i['pkts']) > sumval:
-                sumval=int(i['pkts'])
-        allip[arr] = sumval
+            sumval+=int(i['pkts'])
+        if tf:
+            allip[arr]=[]
+            allip[arr].append(sumval)
+        else:
+            allip[arr] = sumval
         
     xval.append(datetime.now().strftime('%H:%M:%S'))
     return allip, xval
@@ -36,34 +44,23 @@ def index(request):
 
 def req(request,host,tm=20,per=6):
     conf={'device_type':'cisco_ios', 'host':host, 'username':settings.USER, 'password':settings.PASSWD}
-    request.session['ipx']=str(host)
-    global net_obj
-    net_obj[request.session['ipx']]=ConnectHandler(**conf)
-    out2={}
-    out2=net_obj[request.session['ipx']].send_command("show ip cache flow",use_textfsm=True,textfsm_template="netflow.textfsm")    
-
-    allip, xval = getnetfl2(out2,True)
-    
-    ipcol[request.session['ipx']]={}
+    net_obj=ConnectHandler(**conf)
+    allip, xval = getnetfl2(net_obj,True)
     for ip in allip:
-        ipcol[request.session['ipx']][ip]={}
-        ipcol[request.session['ipx']][ip]['data']=allip[ip]
-        ipcol[request.session['ipx']][ip]['color']=f'#{random.randint(0,255):02x}{random.randint(0,255):02x}{random.randint(0,255):02x}'
+        ipcol[ip]={}
+        ipcol[ip]['data']=allip[ip]
+        ipcol[ip]['color']=f'#{random.randint(0,255):02x}{random.randint(0,255):02x}{random.randint(0,255):02x}'
     return render(request,'netflow.html',context={'xval' : xval,'tm' : tm, 'per' : per, 'ipcol' : ipcol })
 
 def req2(request):
-    out2={}
-    global net_obj
-    out2=net_obj[request.session['ipx']].send_command("show ip cache flow",use_textfsm=True,textfsm_template="netflow.textfsm")    
-
-    allip, xval = getnetfl2(out2,False)
+    allip, xval = getnetfl2(net_obj,False)
     for ip in allip:
         if ip not in ipcol:
-            ipcol[request.session['ipx']][ip]={}
-            ipcol[request.session['ipx']][ip]['data']=allip[ip]
-            ipcol[request.session['ipx']][ip]['color']=f'#{random.randint(0,255):02x}{random.randint(0,255):02x}{random.randint(0,255):02x}'
+            ipcol[ip]={}
+            ipcol[ip]['data']=allip[ip]
+            ipcol[ip]['color']=f'#{random.randint(0,255):02x}{random.randint(0,255):02x}{random.randint(0,255):02x}'
         else:
-            ipcol[request.session['ipx']][ip]['data']=allip[ip]
+            ipcol[ip]['data']=allip[ip]
     return JsonResponse({'xval' : xval, 'ipcol' : ipcol })
 
 

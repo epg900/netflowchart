@@ -1,7 +1,7 @@
 Preconfig:
 ----------
 Please set USER,PASSWD and HOST in settings file to read and load netflow data from cisco router! then 
-run `python manage.py migrate` and  `python manage.py runserver`.
+run `python manage.py migrate` and  `python manage.py runserver --noreload`.
 
 How to Use:
 ----------

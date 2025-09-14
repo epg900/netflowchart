@@ -1,0 +1,14 @@
+Value SrcIf (\S+)
+Value SrcIPaddress (\d+\.\d+\.\d+\.\d+)
+Value DstIf (\S+)
+Value DstIPaddress (\d+\.\d+\.\d+\.\d+)
+Value Pr (\S+)
+Value SrcP (\S+)
+Value DstP (\S+)
+Value Pkts (\S+)
+Value Bytes (\d+)
+Value Active (\S+)
+
+Start
+  ^${SrcIf}\s+${SrcIPaddress}\s+${DstIf}\s+${DstIPaddress}\s+${Pr}\s+${SrcP}\s+${DstP}\s+${Pkts}\s+ -> Start
+  ^\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+\S+\s+${DstIPaddress}\s+${Bytes}\s+${Active}\s* -> Record
